@@ -1,7 +1,5 @@
 # FastAGI: AGI as a TCP Server
-
 **FastAGI with PHPAGI and xinetd**
-
 Similar to AGI, FastAGI provides the ability to pass variables directly from the dialplan to the FastAGI server. 
 ## Some housekeeping before we begin
 First of all install the phpagi library (that can be found on sourceforge at http://phpagi.sourceforge.net/) and had a look at the code.
