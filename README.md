@@ -1,5 +1,5 @@
 # FastAGI: AGI as a TCP Server
-**FastAGI with PHPAGI and xinetd**
+##### FastAGI with PHPAGI and xinetd
 Similar to AGI, FastAGI provides the ability to pass variables directly from the dialplan to the FastAGI server. 
 ## Some housekeeping before we begin
 First of all install the phpagi library (that can be found on sourceforge at http://phpagi.sourceforge.net/) and had a look at the code.
@@ -17,7 +17,7 @@ yum install php-posix
 yum install php-process
 ```
 ## Configuring xinetd for FastAGI and PHPAGI
-**Configuring xinetd**
+##### Configuring xinetd
 As indicated previously, in order to turn our AGI script into a FastAGI server, we must first configure xinetd. 
 ```shell
 vi /etc/xinetd.d/fastagi
@@ -77,7 +77,7 @@ tcp        0      0 127.0.0.1:4573          0.0.0.0:*               LISTEN      
 
 Similar to AGI, FastAGI provides the ability to pass variables directly from the dialplan to the FastAGI server. 
 # Configuring PHPAGI for FastAGI
-**phpagi.conf**
+##### phpagi.conf
 Before we start handling the actual FastAGI bootstrap, we must first configure the FastAGI environment of our PHPAGI class. By editing the phpagi.conf file, verify that the following code appears in it or if file does not exists create one with following content.
 
 ```shell
@@ -110,7 +110,7 @@ basedir=/var/lib/asterisk/agi-bin/      ; path to script folder
 #voice=David                            ; default voice
 ```
 
-**Your AGI file**
+##### Your AGI file
 ```shell
 vi /var/lib/asterisk/agi-bin/test-agi.php
 ```
@@ -122,7 +122,7 @@ vi /var/lib/asterisk/agi-bin/test-agi.php
 ?>
 ```
 
-**extensions.conf**
+##### extensions.conf
 ```shell
 vi /etc/asterisk/extensions.conf
 ```
