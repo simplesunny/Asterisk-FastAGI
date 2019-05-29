@@ -85,7 +85,7 @@ tcp        0      0 127.0.0.1:4573          0.0.0.0:*               LISTEN      
 
 Similar to AGI, FastAGI provides the ability to pass variables directly from the dialplan to the FastAGI server. 
 # Configuring PHPAGI for FastAGI
-###### phpagi.conf
+**phpagi.conf**
 Before we start handling the actual FastAGI bootstrap, we must first configure the FastAGI environment of our PHPAGI class. By editing the phpagi.conf file, verify that the following code appears in it or if file does not exists create one with following content.
 
 ```shell
@@ -130,7 +130,7 @@ vi /var/lib/asterisk/agi-bin/test-agi.php
 ?>
 ```
 
-###### extensions.conf
+**extensions.conf**
 ```shell
 vi /etc/asterisk/extensions.conf
 ```
