@@ -11,20 +11,12 @@ chmod -R 777 /var/lib/asterisk/agi-bin/
 
 Also install few modules.
 ```shell
+yum install xinetd
 yum install ngrep
 yum install php-posix
 yum install php-process
 ```
-## Installing and Configuring xinetd for FastAGI and PHPAGI
-**Installing xinetd**
-For centos
-```shell
-yum install xinetd
-```
-For Debian, Ubuntu
-```shell
-sudo apt-get install xinetd
-```
+## Configuring xinetd for FastAGI and PHPAGI
 **Configuring xinetd**
 As indicated previously, in order to turn our AGI script into a FastAGI server, we must first configure xinetd. 
 ```shell
