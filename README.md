@@ -129,10 +129,18 @@ vi /etc/asterisk/extensions.conf
 
 ```shell
 [default]
-exten => _X.,1,AGI(agi://127.0.0.1/test-agi.php)
+exten => _X.,1,AGI(agi://127.0.0.1/test-agi.php,12345)
 exten => _X.,n,NoOp(${test})
+exten => _X.,n,NoOp(${test2})
 exten => _X.,n,hangup()
 ```
 
 TEST by command
 telnet 127.0.0.1 PORT
+
+AGI FILE - test-agi.php
+$request = $fastagi->request;
+$number=$request['agi_arg_1'];
+$fastagi->verbose('cool, the FastAGI server has been called!');
+$fastagi->set_variable("test", "1111");
+$fastagi->set_variable("test2", $number);
