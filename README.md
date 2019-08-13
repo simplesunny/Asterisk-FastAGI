@@ -133,3 +133,6 @@ exten => _X.,1,AGI(agi://127.0.0.1/test-agi.php)
 exten => _X.,n,NoOp(${test})
 exten => _X.,n,hangup()
 ```
+
+TEST by command
+telnet 127.0.0.1 PORT
