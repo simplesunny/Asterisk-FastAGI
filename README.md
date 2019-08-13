@@ -139,8 +139,10 @@ TEST by command
 telnet 127.0.0.1 PORT
 
 AGI FILE - test-agi.php
+```shell
 $request = $fastagi->request;
 $number=$request['agi_arg_1'];
 $fastagi->verbose('cool, the FastAGI server has been called!');
 $fastagi->set_variable("test", "1111");
 $fastagi->set_variable("test2", $number);
+```
