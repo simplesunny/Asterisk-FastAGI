@@ -147,19 +147,28 @@ $fastagi->set_variable("test", "1111");
 $fastagi->set_variable("test2", $number);
 ```
 
-**Remove debug log from command line**
+## Remove debug log from command line
 
-Set debug and error_handler to false in /etc/asterisk/phpagi.conf
+##### Set debug and error_handler to false in /etc/asterisk/phpagi.conf
 
+```shell
 vi /etc/asterisk/phpagi.conf
-
+```
+```shell
 [phpagi]
 debug=false                              ; enable debuging
 error_handler=false                      ; use internal error handler
-After this, set verbose to false in /var/lib/asterisk/agi-bin/phpagi-fastagi.php
+```
 
+##### After this, set verbose to false in /var/lib/asterisk/agi-bin/phpagi-fastagi.php
+```shell
 vi /var/lib/asterisk/agi-bin/phpagi-fastagi.php
+```
 #replace
+```shell
 $fastagi->verbose(print_r($fastagi, true)); #or comment it
+```
 #with
+```shell
 $fastagi->verbose(print_r($fastagi, false));
+```
